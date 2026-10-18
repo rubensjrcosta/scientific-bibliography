@@ -1,12 +1,15 @@
-# BibTeX normalizer v1
+# Classificação temática BibTeX v1
 
-Copy `scripts/normalize.py` and `tests/test_normalize.py` into your repository.
-Add `bib-normalize = "scripts.normalize:main"` under `[project.scripts]` in `pyproject.toml` (optional; `python -m` works without it).
+Instale `bibtexparser>=1.4,<2` e `pytest`. Copie `scripts/classify.py` e `tests/test_classify.py` para o repositório.
 
 ```bash
-python -m pip install -e '.[dev]'
-pytest -v
-python -m scripts.normalize bibliography/master.bib --output bibliography/normalized.bib --report reports/normalization_report.csv
+python -m scripts.classify bibliography/normalized.bib \
+  --output bibliography/classified.bib \
+  --report reports/classification_report.csv \
+  --summary reports/classification_summary.json
+pytest -q tests/test_classify.py
 ```
 
-The tool refuses to overwrite existing outputs. Remove/rename generated output and report before rerunning. It preserves keys and does not edit the source. Serialization may reformat the generated BibTeX, so review the diff. Titles, authors, abstracts and URLs are left unchanged. It does not repair bibliographic inaccuracies or remove suspicious records.
+O arquivo de entrada nunca é alterado. O classificador adiciona `bib_categories` somente quando encontra evidências suficientes, sem substituir `keywords` ou chaves de citação. Registros sem evidências ficam `unclassified`; títulos suspeitos ficam `review_title`. Os relatórios incluem evidências textuais para revisão. Categorias são sugestões heurísticas, não uma validação científica.
+
+Para repetir a execução, use novos nomes de saída ou remova somente os três arquivos gerados anteriormente.
