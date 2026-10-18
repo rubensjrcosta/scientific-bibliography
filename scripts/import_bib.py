@@ -86,9 +86,19 @@ def build_plan(master_entries, incoming_entries):
             target_keys = {match['key'] for match in matches}
             record = {'key': entry['ID'], 'matches': matches}
             if len(target_keys) > 1:
-                pending.append({**record, 'reason': 'conflicting_matches'})
-            else:
+                pending.append({
+                    **record,
+                    'reason': 'conflicting_matches'
+                })
+            
+            elif any('doi' in match['by'] for match in matches):
                 skipped.append(record)
+            
+            else:
+                pending.append({
+                    **record,
+                    'reason': 'possible_duplicate'
+                })
         elif not title_id(entry) or not entry.get('year', '').strip():
             pending.append({'key': entry['ID'], 'reason': 'missing_or_suspicious_title_or_year'})
         else:
