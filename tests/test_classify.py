@@ -33,3 +33,33 @@ def test_preserve_metadata_and_source(tmp_path):
     assert "gamma_ray_astronomy" in entry["bib_categories"]
     with pytest.raises(FileExistsError):
         run(source, output, report, summary)
+
+from scripts.classify import classify_detailed
+
+
+def test_uhecr_title():
+    labels, _, _, _, confidence = classify_detailed({"title": "Measurement of the UHECR spectrum"})
+    assert "cosmic_rays" in labels
+    assert confidence["cosmic_rays"] in {"medium", "high"}
+
+
+def test_fermi_catalog():
+    labels, _, _, _, _ = classify_detailed({"title": "The fourth Fermi-LAT source catalog 4FGL"})
+    assert "gamma_ray_astronomy" in labels
+    assert "instrumentation" in labels
+
+
+def test_specific_abstract():
+    labels, _, _, _, _ = classify_detailed({"title": "New measurements", "abstract": "UHECR observations"})
+    assert "cosmic_rays" in labels
+
+
+def test_agn_and_magnetic():
+    labels, _, _, _, _ = classify_detailed({"title": "Magnetic field in a blazar jet"})
+    assert {"magnetic_fields", "active_galactic_nuclei"} <= set(labels)
+
+
+def test_generic_abstract_does_not_force_label():
+    labels, _, status, _, _ = classify_detailed({"title": "A laboratory experiment", "abstract": "We mention cosmic rays."})
+    assert "cosmic_rays" not in labels
+    assert status == "unclassified"
