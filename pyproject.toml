@@ -20,3 +20,6 @@ include = ["scripts*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+# Add under [project.scripts] in your existing pyproject.toml:
+# bib-normalize = "scripts.normalize:main"

@@ -1,14 +1,12 @@
-# Scientific bibliography
+# BibTeX normalizer v1
 
-Non-destructive BibTeX auditing using `bibtexparser` 1.x.
+Copy `scripts/normalize.py` and `tests/test_normalize.py` into your repository.
+Add `bib-normalize = "scripts.normalize:main"` under `[project.scripts]` in `pyproject.toml` (optional; `python -m` works without it).
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
 python -m pip install -e '.[dev]'
-python -m scripts.audit bibliography/master.bib --output reports
+pytest -v
+python -m scripts.normalize bibliography/master.bib --output bibliography/normalized.bib --report reports/normalization_report.csv
 ```
 
-Copy your curated `.bib` to `bibliography/master.bib` first. The auditor never writes to this file. Reports are diagnostic and do not automatically remove or modify entries.
-
-A valid-looking record is not proof of accurate bibliographic metadata. Duplicate DOI/title groups are candidates for manual review.
+The tool refuses to overwrite existing outputs. Remove/rename generated output and report before rerunning. It preserves keys and does not edit the source. Serialization may reformat the generated BibTeX, so review the diff. Titles, authors, abstracts and URLs are left unchanged. It does not repair bibliographic inaccuracies or remove suspicious records.
