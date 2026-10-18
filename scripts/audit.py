@@ -47,9 +47,16 @@ def normalized_doi(value: str) -> str:
     return re.sub(r"^doi:\s*", "", value).strip()
 
 
+PLACEHOLDERS = {"notitle", "untitled", "unknown", "na", "none", "tbd", "missing", "notavailable"}
+
+
+def is_placeholder(value: str) -> bool:
+    return normalized_text(value) in PLACEHOLDERS
+
+
 def has_value(entry: dict, field: str) -> bool:
     value = str(entry.get(field, "")).strip()
-    return bool(value and value not in ("{}", '""'))
+    return bool(value and value not in ("{}", '""') and not is_placeholder(value))
 
 
 def audit(source: Path) -> dict:
@@ -75,12 +82,17 @@ def audit(source: Path) -> dict:
         if has_value(entry, "doi"):
             groups["doi"][normalized_doi(str(entry["doi"]))].append(key)
         if has_value(entry, "title"):
-            groups["title"][normalized_text(str(entry["title"]))].append(key)
+            title_norm = normalized_text(str(entry["title"]))
+            if len(title_norm) >= 12:
+                groups["title"][title_norm].append(key)
 
         def add(code: str, detail: str, severity: str = "warning") -> None:
             issues.append({"entry_number": index, "key": key, "type": kind,
                            "severity": severity, "code": code, "detail": detail})
 
+        for field in ("title", "author", "journal", "publisher"):
+            if field in entry and is_placeholder(str(entry[field])):
+                add("placeholder_value", f"{field}: {entry[field]}", "review")
         if kind not in REQUIRED:
             add("unknown_type", f"No completeness policy for @{kind}")
         else:
@@ -94,6 +106,10 @@ def audit(source: Path) -> dict:
             if kind == "article" and not any(has_value(entry, f) for f in ("pages", "eid", "number")):
                 add("missing_locator", "pages/eid/number (review manually)")
 
+        if has_value(entry, "year") and re.fullmatch(r"\d{4}", str(entry["year"]).strip()):
+            year = int(str(entry["year"]).strip())
+            if year < 1600 or year > 2030:
+                add("suspicious_year", str(year), "review")
         if has_value(entry, "year") and not re.fullmatch(r"\d{4}", str(entry["year"]).strip()):
             add("invalid_year", str(entry["year"]))
         if has_value(entry, "doi") and not re.fullmatch(r"10\.\d{4,9}/\S+", normalized_doi(str(entry["doi"]))):
@@ -110,6 +126,7 @@ def audit(source: Path) -> dict:
                                    "severity": "review", "code": f"duplicate_{category}",
                                    "detail": f"{value} ({len(keys)} records)"})
 
+    # Review queue: one row per issue, with editable human decision columns.
     return {"source": str(source), "sha256_before": source_hash,
             "total_entries": len(entries), "types": dict(counts),
             "issues": issues, "duplicate_groups": duplicates}
@@ -123,6 +140,16 @@ def write_reports(result: dict, output: Path) -> None:
         writer = csv.DictWriter(stream, fieldnames=["entry_number", "key", "type", "severity", "code", "detail"])
         writer.writeheader()
         writer.writerows(result["issues"])
+    with (output / "manual_review.csv").open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=["key", "code", "detail", "decision", "notes"])
+        writer.writeheader()
+        seen = set()
+        for issue in result["issues"]:
+            signature = (issue["key"], issue["code"], issue["detail"])
+            if signature not in seen:
+                writer.writerow({"key": issue["key"], "code": issue["code"],
+                                 "detail": issue["detail"], "decision": "pending", "notes": ""})
+                seen.add(signature)
     with (output / "audit_duplicates.csv").open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
         writer.writerow(["category", "value", "count", "keys"])

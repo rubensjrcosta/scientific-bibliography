@@ -7,3 +7,12 @@ def test_normalized_doi():
 
 def test_normalized_title():
     assert normalized_text('Gamma-Ray Astronomy') == normalized_text('Gamma Ray Astronomy')
+
+from scripts.audit import has_value, is_placeholder
+
+
+def test_placeholder_values():
+    assert is_placeholder("No title")
+    assert is_placeholder("Unknown")
+    assert not has_value({"title": "No title"}, "title")
+    assert has_value({"title": "Gamma-ray astronomy"}, "title")
