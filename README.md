@@ -1,26 +1,19 @@
-# Exportação temática de referências BibTeX
+# Importação de referências
 
-Requer `bibtexparser>=1.4,<2` (a mesma dependência do classificador).
+Copie somente `scripts/import_bib.py` para o repositório existente. Os arquivos `scripts/classify.py` e `scripts/export.py` da versão 2 devem continuar instalados.
 
-Copie `scripts/export.py` e `tests/test_export.py` para as pastas equivalentes do seu repositório.
-
-```bash
-python -m scripts.export bibliography/classified_v2.bib --output bibliography/topics
-```
-
-Para regenerar arquivos já existentes:
+Prévia, sem alterações:
 
 ```bash
-python -m scripts.export bibliography/classified_v2.bib --output bibliography/topics --overwrite
+python -m scripts.import_bib imports/novo.bib --dry-run
 ```
 
-O comando cria 11 arquivos por tema, `unclassified.bib` e `export_summary.json`.
-`astrophysics.bib` corresponde à categoria `general_astrophysics`.
-Uma referência pode aparecer em mais de um arquivo temático; não concatene os arquivos.
-O campo `bib_categories` precisa existir no arquivo de entrada. A classificação é uma sugestão automática.
-
-Testes:
+Importar referências novas e atualizar os arquivos temáticos:
 
 ```bash
-pytest -q tests/test_export.py
+python -m scripts.import_bib imports/novo.bib
 ```
+
+O script compara chaves, DOI e títulos normalizados, pula correspondências e reserva conflitos ou títulos/anos suspeitos para revisão. A classificação automática é uma sugestão e pode conter erros. Cria backup da biblioteca anterior em `bibliography/backups/`. Para evitar enviar backups ao GitHub, inclua `bibliography/backups/` no `.gitignore`.
+
+**Importante:** execute no diretório raiz do repositório e use `bibtexparser>=1.4,<2`. Não misture os arquivos temáticos ao compilar o mesmo documento LaTeX, pois uma referência pode aparecer em mais de um tema.

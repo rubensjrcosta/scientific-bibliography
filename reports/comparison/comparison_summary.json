@@ -2,7 +2,6 @@
   "source": "imports/novo.bib",
   "reference": "bibliography/references.bib",
   "counts": {
-    "candidate_new": 94,
-    "possible_duplicate": 12
+    "candidate_new": 6
   }
 }
