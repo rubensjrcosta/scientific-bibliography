@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scientific-bibliography"
+version = "0.1.0"
+description = "Non-destructive BibTeX auditing and curation tools"
+requires-python = ">=3.10"
+dependencies = ["bibtexparser>=1.4.1,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+bib-audit = "scripts.audit:main"
+
+[tool.setuptools.packages.find]
+include = ["scripts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
