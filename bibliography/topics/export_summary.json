@@ -1,0 +1,21 @@
+{
+  "source": "/home/phoenix/Coding/GitHub/scientific-bibliography/bibliography/classified_v2.bib",
+  "total_entries": 236,
+  "classified_entries": 175,
+  "unclassified_entries": 61,
+  "category_counts": {
+    "general_astrophysics": 17,
+    "gamma_ray_astronomy": 43,
+    "cosmic_rays": 112,
+    "pulsars_pwn": 18,
+    "supernova_remnants": 9,
+    "grbs": 2,
+    "multimessenger": 10,
+    "instrumentation": 11,
+    "methods_software": 3,
+    "magnetic_fields": 60,
+    "active_galactic_nuclei": 10
+  },
+  "unknown_category_labels": {},
+  "note": "Topic files overlap. Do not concatenate them into one LaTeX bibliography."
+}

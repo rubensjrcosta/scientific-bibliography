@@ -1,20 +1,26 @@
-# BibTeX audit with comparison
+# Exportação temática de referências BibTeX
 
-Replace `scripts/audit.py` in your existing repository with the file in this package.
+Requer `bibtexparser>=1.4,<2` (a mesma dependência do classificador).
+
+Copie `scripts/export.py` e `tests/test_export.py` para as pastas equivalentes do seu repositório.
 
 ```bash
-python -m scripts.audit imports/novo.bib --compare bibliography/references.bib --output reports/comparison
+python -m scripts.export bibliography/classified_v2.bib --output bibliography/topics
 ```
 
-The original audit reports are generated as before, plus:
-
-- `comparison.csv`: each imported entry, candidate status, matching criteria, existing keys.
-- `comparison_summary.json`: totals by status.
-
-Matching uses normalized DOI, case-insensitive BibTeX key, or normalized title (>=12 characters, excluding placeholder titles). It does not perform fuzzy matching, and `candidate_new` does not prove that a publication is new. No BibTeX input is changed.
-
-To audit only one file:
+Para regenerar arquivos já existentes:
 
 ```bash
-python -m scripts.audit imports/novo.bib --output reports/new
+python -m scripts.export bibliography/classified_v2.bib --output bibliography/topics --overwrite
+```
+
+O comando cria 11 arquivos por tema, `unclassified.bib` e `export_summary.json`.
+`astrophysics.bib` corresponde à categoria `general_astrophysics`.
+Uma referência pode aparecer em mais de um arquivo temático; não concatene os arquivos.
+O campo `bib_categories` precisa existir no arquivo de entrada. A classificação é uma sugestão automática.
+
+Testes:
+
+```bash
+pytest -q tests/test_export.py
 ```
