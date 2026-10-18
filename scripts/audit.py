@@ -132,6 +132,72 @@ def audit(source: Path) -> dict:
             "issues": issues, "duplicate_groups": duplicates}
 
 
+
+def compare_bibliographies(source: Path, reference: Path) -> dict:
+    """Compare source entries with reference by DOI, key, and normalized title.
+
+    Matches are candidates for review, not proof that two records are identical.
+    Neither input is modified.
+    """
+    def load(path: Path) -> list[dict]:
+        parser = BibTexParser(common_strings=True, interpolate_strings=False)
+        parser.ignore_nonstandard_types = False
+        parser.homogenize_fields = False
+        return bibtexparser.loads(path.read_text(encoding="utf-8-sig"), parser=parser).entries
+
+    incoming = load(source)
+    known = load(reference)
+    indexes = {field: defaultdict(set) for field in ("doi", "key", "title")}
+
+    def fingerprints(entry: dict) -> dict[str, str]:
+        title = normalized_text(str(entry.get("title", "")))
+        if len(title) < 12 or is_placeholder(str(entry.get("title", ""))):
+            title = ""
+        doi = normalized_doi(str(entry.get("doi", "")))
+        return {
+            "doi": doi if re.fullmatch(r"10\.\d{4,9}/\S+", doi) else "",
+            "key": str(entry.get("ID", "")).strip().casefold(),
+            "title": title,
+        }
+
+    for entry in known:
+        for field, value in fingerprints(entry).items():
+            if value:
+                indexes[field][value].add(entry.get("ID", ""))
+
+    rows = []
+    for entry in incoming:
+        fingerprints_entry = fingerprints(entry)
+        matches = {field: indexes[field].get(value, set()) if value else set()
+                   for field, value in fingerprints_entry.items()}
+        matched = set().union(*matches.values())
+        methods = [field for field, values in matches.items() if values]
+        # Disagreement between DOI/key/title matches is a reason to review.
+        conflict = len({tuple(sorted(values)) for values in matches.values() if values}) > 1
+        status = "review_conflict" if conflict else ("possible_duplicate" if matched else "candidate_new")
+        rows.append({
+            "key": entry.get("ID", ""),
+            "title": entry.get("title", ""),
+            "doi": entry.get("doi", ""),
+            "status": status,
+            "matched_by": "; ".join(methods),
+            "existing_keys": "; ".join(sorted(matched)),
+        })
+    return {"source": str(source), "reference": str(reference), "rows": rows,
+            "counts": dict(Counter(row["status"] for row in rows))}
+
+
+def write_comparison(result: dict, output: Path) -> None:
+    output.mkdir(parents=True, exist_ok=True)
+    with (output / "comparison.csv").open("w", encoding="utf-8", newline="") as stream:
+        fields = ["key", "title", "doi", "status", "matched_by", "existing_keys"]
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(result["rows"])
+    (output / "comparison_summary.json").write_text(
+        json.dumps({key: result[key] for key in ("source", "reference", "counts")},
+                   ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
 def write_reports(result: dict, output: Path) -> None:
     output.mkdir(parents=True, exist_ok=True)
     (output / "audit_summary.json").write_text(
@@ -161,14 +227,23 @@ def main(argv: list[str] | None = None) -> int:
     command = argparse.ArgumentParser(description=__doc__)
     command.add_argument("bibfile", type=Path, help="Input .bib file (read only)")
     command.add_argument("--output", type=Path, default=Path("reports"), help="Report directory")
+    command.add_argument("--compare", type=Path, help="Existing library to compare against (read only)")
     args = command.parse_args(argv)
     if not args.bibfile.is_file():
         command.error(f"Input file not found: {args.bibfile}")
+    if args.compare is not None and not args.compare.is_file():
+        command.error(f"Comparison file not found: {args.compare}")
     try:
         result = audit(args.bibfile)
+        reference_hash = hashlib.sha256(args.compare.read_bytes()).hexdigest() if args.compare else None
         if args.output.resolve() == args.bibfile.resolve():
             raise ValueError("Output directory must differ from input file")
         write_reports(result, args.output)
+        if args.compare:
+            comparison = compare_bibliographies(args.bibfile, args.compare)
+            write_comparison(comparison, args.output)
+            if hashlib.sha256(args.compare.read_bytes()).hexdigest() != reference_hash:
+                raise RuntimeError("Comparison file changed during audit")
         if hashlib.sha256(args.bibfile.read_bytes()).hexdigest() != result["sha256_before"]:
             raise RuntimeError("Input file changed during audit")
     except (OSError, UnicodeError, ValueError, RuntimeError) as error:
@@ -176,6 +251,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     print(f"Entries: {result['total_entries']}; issues: {len(result['issues'])}; "
           f"duplicate groups: {len(result['duplicate_groups'])}")
+    if args.compare:
+        print("Comparison:", comparison["counts"])
+        print(f"Comparison report: {args.output / 'comparison.csv'}")
     print(f"Reports saved in {args.output}")
     print("Source file unchanged (SHA-256 verified).")
     return 0

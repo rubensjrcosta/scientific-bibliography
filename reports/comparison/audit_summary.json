@@ -1,0 +1,56 @@
+{
+  "source": "imports/novo.bib",
+  "sha256_before": "0da7c21663deea571a2ec27c971de493548f150042a5354f790e279d9d189371",
+  "total_entries": 106,
+  "types": {
+    "article": 96,
+    "inproceedings": 7,
+    "book": 2,
+    "misc": 1
+  },
+  "issues": [
+    {
+      "entry_number": 29,
+      "key": "CTAOIRFS",
+      "type": "misc",
+      "severity": "warning",
+      "code": "missing_identifier",
+      "detail": "doi/url/howpublished/note/eprint"
+    },
+    {
+      "entry_number": 57,
+      "key": "Atri2013",
+      "type": "article",
+      "severity": "warning",
+      "code": "missing_field",
+      "detail": "volume"
+    },
+    {
+      "entry_number": "",
+      "key": "2004IAUS..218..239P",
+      "type": "",
+      "severity": "review",
+      "code": "duplicate_title",
+      "detail": "centralcompactobjectsinsupernovaremnants (2 records)"
+    },
+    {
+      "entry_number": "",
+      "key": "2017JPhCS.932a2006D",
+      "type": "",
+      "severity": "review",
+      "code": "duplicate_title",
+      "detail": "centralcompactobjectsinsupernovaremnants (2 records)"
+    }
+  ],
+  "duplicate_groups": [
+    {
+      "category": "title",
+      "value": "centralcompactobjectsinsupernovaremnants",
+      "count": 2,
+      "keys": [
+        "2004IAUS..218..239P",
+        "2017JPhCS.932a2006D"
+      ]
+    }
+  ]
+}
