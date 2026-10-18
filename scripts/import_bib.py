@@ -9,6 +9,7 @@ The master file is backed up before replacement; ambiguous records are skipped.
 from __future__ import annotations
 
 import argparse
+import csv
 from collections import Counter
 from datetime import datetime, timezone
 import json
@@ -25,7 +26,7 @@ from scripts.classify import classify_detailed
 from scripts.export import CATEGORIES, FILENAMES, labels_from_entry, render
 
 
-def read_bib(path: Path):
+def read_bib(path: Path, strict=True):
     parser = BibTexParser(common_strings=True, interpolate_strings=False)
     parser.ignore_nonstandard_types = False
     parser.homogenize_fields = False
@@ -33,7 +34,7 @@ def read_bib(path: Path):
     if not db.entries:
         raise ValueError(f'Arquivo sem referências: {path}')
     keys = [e.get('ID', '') for e in db.entries]
-    if not all(keys) or len(keys) != len({k.casefold() for k in keys}):
+    if strict and (not all(keys) or len(keys) != len({k.casefold() for k in keys})):
         raise ValueError(f'Chaves vazias ou repetidas no arquivo: {path}')
     return db
 
@@ -108,12 +109,34 @@ def run(source: Path, library: Path, topics: Path, dry_run=False):
         raise ValueError('Arquivo importado e biblioteca principal devem ser diferentes')
     if not source.is_file() or not library.is_file():
         raise FileNotFoundError('Arquivo importado ou biblioteca principal não encontrado')
-    master_db, new_db = read_bib(library), read_bib(source)
-    accepted, skipped, pending = build_plan(master_db.entries, new_db.entries)
+    master_db, new_db = read_bib(library), read_bib(source, strict=False)
+    key_counts = Counter(e.get('ID', '').casefold() for e in new_db.entries)
+    good = []
+    invalid = []
+    for index, entry in enumerate(new_db.entries, start=1):
+        key = entry.get('ID', '')
+        if not key:
+            invalid.append({'key': '', 'reason': 'empty_key', 'source_entry': index})
+        elif key_counts[key.casefold()] > 1:
+            invalid.append({'key': key, 'reason': 'repeated_source_key', 'source_entry': index})
+        else:
+            good.append(entry)
+    accepted, skipped, pending = build_plan(master_db.entries, good)
+    pending = invalid + pending
     result = {'existing': len(master_db.entries), 'incoming': len(new_db.entries),
               'added': len(accepted), 'duplicates': len(skipped),
               'review': len(pending), 'total': len(master_db.entries) + len(accepted),
               'added_keys': [e['ID'] for e in accepted], 'skipped': skipped, 'pending': pending}
+    if not dry_run:
+        report_dir = library.parent.parent / 'reports' / 'import'
+        report_dir.mkdir(parents=True, exist_ok=True)
+        report = report_dir / 'import_report.json'
+        report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        with (report_dir / 'review.csv').open('w', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['key', 'reason', 'source_entry', 'matches'])
+            writer.writeheader()
+            for item in pending:
+                writer.writerow({k: json.dumps(item.get(k, []), ensure_ascii=False) if k == 'matches' else item.get(k, '') for k in writer.fieldnames})
     if dry_run or not accepted:
         return result
 
@@ -147,10 +170,20 @@ def run(source: Path, library: Path, topics: Path, dry_run=False):
         for cat, entries in groups.items():
             (staged_topics / FILENAMES[cat]).write_text(render(entries), encoding='utf-8')
         (staged_topics / 'unclassified.bib').write_text(render(unclassified), encoding='utf-8')
-        (staged_topics / 'export_summary.json').write_text(json.dumps({
-            'total_entries': len(check.entries), 'unclassified_entries': len(unclassified),
-            'category_counts': {cat: len(entries) for cat, entries in groups.items()}
-        }, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        # Prepare the export report in the temporary directory.
+        staged_export_report = stage / 'export_summary.json'
+        
+        staged_export_report.write_text(
+            json.dumps({
+                'total_entries': len(check.entries),
+                'unclassified_entries': len(unclassified),
+                'category_counts': {
+                    cat: len(entries)
+                    for cat, entries in groups.items()
+                },
+            }, ensure_ascii=False, indent=2) + '\n',
+            encoding='utf-8',
+        )
 
         # Keep a timestamped backup outside the generated topics directory.
         backup_dir = library.parent / 'backups'
@@ -188,7 +221,9 @@ def main(argv=None):
     elif result['added']:
         print('Biblioteca e tópicos atualizados. Backup:', result['backup'])
     else:
-        print('Nenhuma referência nova adicionada; arquivos preservados.')
+        print('Nenhuma referência nova adicionada; biblioteca preservada.')
+    if not args.dry_run:
+        print('Relatórios: reports/import/import_report.json e reports/import/review.csv')
     return result
 
 

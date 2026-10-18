@@ -1,0 +1,458 @@
+{
+  "existing": 472,
+  "incoming": 54,
+  "added": 19,
+  "duplicates": 33,
+  "review": 2,
+  "total": 491,
+  "added_keys": [
+    "FeuPy",
+    "Hunter2007",
+    "Virtanen2020",
+    "fiori2020",
+    "petriella2021",
+    "guo2024",
+    "gong2026",
+    "HESSELS2008",
+    "Tanaka2010",
+    "Porter2017",
+    "Wilks1938",
+    "Cash1979",
+    "Protassov2002",
+    "Cowan2011",
+    "MAGIC2014",
+    "chen2025",
+    "Eagle2026",
+    "Hofmann2022",
+    "Rousseau2012"
+  ],
+  "skipped": [
+    {
+      "key": "ballet2024",
+      "matches": [
+        {
+          "key": "2023arXiv230712546B",
+          "by": [
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "gammapy:2023",
+      "matches": [
+        {
+          "key": "Donath2023",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "emcee",
+      "matches": [
+        {
+          "key": "MacKay2013",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "astropy",
+      "matches": [
+        {
+          "key": "Astropy2022",
+          "by": [
+            "doi"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ForemanMackey2013",
+      "matches": [
+        {
+          "key": "MacKay2013",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "CTAOIRF2021",
+      "matches": [
+        {
+          "key": "CTAOIRFs2021",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Harris2020",
+      "matches": [
+        {
+          "key": "Harris2020Array",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "CTAConsortium2019",
+      "matches": [
+        {
+          "key": "CTAConsortium2019",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Gaensler2006",
+      "matches": [
+        {
+          "key": "Gaensler:2006ua",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Porter2022",
+      "matches": [
+        {
+          "key": "Porter2022Galprop",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "CTAPeVatron2023",
+      "matches": [
+        {
+          "key": "Acero_2023",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "LiMa1983",
+      "matches": [
+        {
+          "key": "1983ApJ...272..317L",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "yao2017",
+      "matches": [
+        {
+          "key": "Yao_2017",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Aharonian2008",
+      "matches": [
+        {
+          "key": "Aharonian2008Hess",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "hess2018",
+      "matches": [
+        {
+          "key": "2018A&A...612A...1H",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "lhaaso2024",
+      "matches": [
+        {
+          "key": "Cao2024First",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "ctao_irf_prod5",
+      "matches": [
+        {
+          "key": "CTAOIRFs2021",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Abdollahi2022",
+      "matches": [
+        {
+          "key": "Abdollahi2022Incremental",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Ballet2023",
+      "matches": [
+        {
+          "key": "2023arXiv230712546B",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "Albert2020",
+      "matches": [
+        {
+          "key": "Albert2020Hwc",
+          "by": [
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2022ApJ...935..167A",
+      "matches": [
+        {
+          "key": "Astropy2022",
+          "by": [
+            "doi"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2018AJ....156..123A",
+      "matches": [
+        {
+          "key": "2018AJ....156..123A",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2013A&A...558A..33A",
+      "matches": [
+        {
+          "key": "2013A&A...558A..33A",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "1996A&AS..117..393B",
+      "matches": [
+        {
+          "key": "1996A&AS..117..393B",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2018AJ....156...82C",
+      "matches": [
+        {
+          "key": "2018AJ....156...82C",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2015ApJ...805...23C",
+      "matches": [
+        {
+          "key": "2015ApJ...805...23C",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2013RMxAA..49..137F",
+      "matches": [
+        {
+          "key": "2013RMxAA..49..137F",
+          "by": [
+            "key",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "1989BAAS...21..780H",
+      "matches": [
+        {
+          "key": "1989BAAS...21..780H",
+          "by": [
+            "key",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "lamport94",
+      "matches": [
+        {
+          "key": "lamport94",
+          "by": [
+            "key",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2018ApJ...868L..33L",
+      "matches": [
+        {
+          "key": "2018ApJ...868L..33L",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2016AJ....152...41P",
+      "matches": [
+        {
+          "key": "2016AJ....152...41P",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2011ApJS..197...31S",
+      "matches": [
+        {
+          "key": "2011ApJS..197...31S",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "2014ApJ...793..127V",
+      "matches": [
+        {
+          "key": "2014ApJ...793..127V",
+          "by": [
+            "key",
+            "doi",
+            "title"
+          ]
+        }
+      ]
+    }
+  ],
+  "pending": [
+    {
+      "key": "Zabalza2015",
+      "matches": [
+        {
+          "key": "Zabalza2018",
+          "by": [
+            "doi"
+          ]
+        },
+        {
+          "key": "naima",
+          "by": [
+            "title"
+          ]
+        }
+      ],
+      "reason": "conflicting_matches"
+    },
+    {
+      "key": "KassRaftery1995",
+      "reason": "missing_or_suspicious_title_or_year"
+    }
+  ]
+}

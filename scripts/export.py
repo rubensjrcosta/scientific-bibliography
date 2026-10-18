@@ -101,7 +101,7 @@ def export_topics(source: Path, output: Path, overwrite: bool = False):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path, help="Classified BibTeX file")
-    parser.add_argument("--output", type=Path, default=Path("bibliography/topics"), help="Topic output directory")
+    parser.add_argument("--output", type=Path, default=Path("reports"), help="Topic output directory")
     parser.add_argument("--overwrite", action="store_true", help="Replace previously generated topic files")
     args = parser.parse_args(argv)
     try:
